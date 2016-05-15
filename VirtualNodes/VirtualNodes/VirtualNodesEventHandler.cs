@@ -42,7 +42,7 @@ namespace DotSee.VirtualNodes
                 IPublishedContent parent = new Umbraco.Web.UmbracoHelper(UmbracoContext.Current).TypedContent(node.Parent().Id);
 
                 //If parent is home (redundant) and parent is not a virtual node, exit
-                if (parent.Level < 2 || !parent.ContentType.Alias.ToLower().StartsWith("virtualnode"))
+                if (parent.Level < 2 || !parent.IsVirtualNode())
                 {
                     continue;
                 }
@@ -56,7 +56,7 @@ namespace DotSee.VirtualNodes
                 foreach (IPublishedContent farSibling in parent.Siblings()) {
                 
                     //Don't take other nodes under considerations - only virtual nodes
-                    if (!farSibling.ContentType.Alias.ToLower().StartsWith("virtualnode")) { continue; }
+                    if (!farSibling.IsVirtualNode()) { continue; }
 
                     //For each sibling of the node's parent, get all children and check names
                     foreach (IPublishedContent potentialDuplicate in farSibling.Children())
