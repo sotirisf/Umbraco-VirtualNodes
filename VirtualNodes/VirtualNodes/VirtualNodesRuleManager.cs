@@ -22,7 +22,7 @@ namespace DotSee.VirtualNodes
         /// <summary>
         /// The list of rule objects
         /// </summary>
-        private List<VirtualNodesRule> _rules;
+        private List<string> _rules;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace DotSee.VirtualNodes
         /// <summary>
         /// Gets the list of rules
         /// </summary>
-        public List<VirtualNodesRule> Rules { get { return _rules; } }
+        public List<string> Rules { get { return _rules; } }
         
         #endregion
 
@@ -48,19 +48,19 @@ namespace DotSee.VirtualNodes
         private VirtualNodesRuleManager()
         {
             ///This is the prefix web.config keys should have to be included 
-            string keyPrefix = "virtualnodes:";
+            string key = "virtualnode";
 
-            _rules = new List<VirtualNodesRule>();
+            _rules = new List<string>();
 
             //Get all entries with keys starting with specified prefix
             string[] ruleKeys =
                 ConfigurationManager.AppSettings.AllKeys
-                .Where(x => x.StartsWith(keyPrefix)).ToArray();
+                .Where(x => x.ToLower().Equals(key)).ToArray();
              
             //Register a rule for each item
             foreach (string ruleKey in ruleKeys)
             {
-                RegisterRule(new VirtualNodesRule(ruleKey.Replace(keyPrefix, ""), ConfigurationManager.AppSettings[ruleKey]));
+                RegisterRule(ConfigurationManager.AppSettings[ruleKey]);
             }
         }
 
@@ -72,7 +72,7 @@ namespace DotSee.VirtualNodes
         /// Registers a new rule for url segment replacement
         /// </summary>
         /// <param name="rule">An VirtualNodesRule object</param>
-        public void RegisterRule(VirtualNodesRule rule)
+        public void RegisterRule(string rule)
         {
             _rules.Add(rule);
         }

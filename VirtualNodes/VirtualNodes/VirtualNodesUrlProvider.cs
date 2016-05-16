@@ -33,7 +33,7 @@ namespace DotSee.VirtualNodes
             //if (content.DocumentTypeAlias.ToLower().StartsWith("virtualnode")) { return null; }
 
             bool hasVirtualNodeInPath = false;
-            foreach (IPublishedContent item in content.Ancestors().Union(content.Children()))
+            foreach (IPublishedContent item in content.Ancestors()) //.Union(content.Children())
             {
                 if (item.IsVirtualNode())
                 {

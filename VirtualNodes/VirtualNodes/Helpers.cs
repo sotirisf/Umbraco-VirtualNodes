@@ -33,9 +33,9 @@ namespace DotSee.VirtualNodes
         }
 
         public static bool IsVirtualNode(this IPublishedContent item) {
-            foreach (VirtualNodesRule rule in VirtualNodesRuleManager.Instance.Rules)
+            foreach (string rule in VirtualNodesRuleManager.Instance.Rules)
             {
-                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule.DocTypeAlias))
+                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
                 {
                     return true;
                 }
@@ -44,8 +44,8 @@ namespace DotSee.VirtualNodes
         }
 
         public static bool IsVirtualNode(this IContent item) {
-            foreach (VirtualNodesRule rule in VirtualNodesRuleManager.Instance.Rules) {
-                if (MatchContentTypeAlias(item.ContentType.Alias, rule.DocTypeAlias)) {
+            foreach (string rule in VirtualNodesRuleManager.Instance.Rules) {
+                if (MatchContentTypeAlias(item.ContentType.Alias, rule)) {
                     return true;
                 }
             }
@@ -57,7 +57,7 @@ namespace DotSee.VirtualNodes
         {
 
             if (contentTypeAliasFromSettings.EndsWith("*") && contentTypeAliasFromSettings.StartsWith("*")) {
-                return (nodeContentTypeAlias.Contains(contentTypeAliasFromSettings.ToLower().Replace("*", "")));
+                return (nodeContentTypeAlias.ToLower().Contains(contentTypeAliasFromSettings.ToLower().Replace("*", "")));
             }
             else if (contentTypeAliasFromSettings.EndsWith("*"))
             {
