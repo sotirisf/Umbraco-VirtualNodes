@@ -1,4 +1,4 @@
-Let you specify one or more document types that will be excluded from Umbraco-generated URLs, thus making them "invisible". Those can be used as grouping nodes and they will not appear as part of the URL.
+Lets you specify one or more document types that will be excluded from Umbraco-generated URLs, thus making them "invisible". Those can be used as grouping nodes and they will not appear as part of the URL.
 
 ##Usage
 After you install the package, you will have to add one appSettings entry to your web.config file, as follows:
