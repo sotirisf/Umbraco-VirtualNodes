@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotSee.VirtualNodes;
 
-namespace VirtualNodesTest
+namespace DotSee.VirtualNodesTest
 {
     /// <summary>
     /// Some silly tests, nothing much, really.

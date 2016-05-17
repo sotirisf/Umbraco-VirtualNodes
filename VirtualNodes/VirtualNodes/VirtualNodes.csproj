@@ -7,8 +7,8 @@
     <ProjectGuid>{5389A87F-70B2-4FEB-9750-72D5427C6CF7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VirtualNodes</RootNamespace>
-    <AssemblyName>VirtualNodes</AssemblyName>
+    <RootNamespace>DotSee.VirtualNodes</RootNamespace>
+    <AssemblyName>DotSee.VirtualNodes</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

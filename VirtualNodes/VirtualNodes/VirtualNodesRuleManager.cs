@@ -53,31 +53,18 @@ namespace DotSee.VirtualNodes
             _rules = new List<string>();
 
             //Get all entries with keys starting with specified prefix
-            string[] ruleKeys =
-                ConfigurationManager.AppSettings.AllKeys
-                .Where(x => x.ToLower().Equals(key)).ToArray();
-             
-            //Register a rule for each item
-            foreach (string ruleKey in ruleKeys)
+            string rules =
+                ConfigurationManager.AppSettings.Get(key);
+
+           if (string.IsNullOrEmpty(rules)) { return; }
+            
+           //Register a rule for each item
+            foreach (string rule in rules.Split(','))
             {
-                RegisterRule(ConfigurationManager.AppSettings[ruleKey]);
+                _rules.Add(rule);
             }
         }
 
         #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        /// Registers a new rule for a virtual node
-        /// </summary>
-        /// <param name="rule">An VirtualNodesRule object</param>
-        public void RegisterRule(string rule)
-        {
-            _rules.Add(rule);
-        }
-        
-        #endregion  
-
     }
 }
