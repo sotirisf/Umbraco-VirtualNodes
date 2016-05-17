@@ -25,7 +25,7 @@ namespace DotSee.VirtualNodes
             ContentFinderResolver.Current.InsertTypeBefore<ContentFinderByNotFoundHandlers, VirtualNodesContentFinder>();
 
             base.ApplicationStarting(umbracoApplication, applicationContext);
-            ContentService.Publishing += ContentServicePublishing;
+            ContentService.Saving += ContentServiceSaving;
             ContentService.Published += ContentServicePublished;
         }
 
@@ -35,11 +35,11 @@ namespace DotSee.VirtualNodes
             ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem("cachedVirtualNodes");
         }
 
-        private void ContentServicePublishing(IPublishingStrategy sender, PublishEventArgs<IContent> args)
+        private void ContentServiceSaving(IContentService sender, SaveEventArgs<IContent> args)
         {
 
             ///Go through nodes being published          
-            foreach (IContent node in args.PublishedEntities)
+            foreach (IContent node in args.SavedEntities)
             {
                 //If there is no parent, exit
                 if (!node.IsNewEntity() && node.Level==1) { continue; }

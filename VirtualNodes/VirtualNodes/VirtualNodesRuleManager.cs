@@ -61,7 +61,7 @@ namespace DotSee.VirtualNodes
            //Register a rule for each item
             foreach (string rule in rules.Split(','))
             {
-                _rules.Add(rule);
+                _rules.Add(rule.Trim());
             }
         }
 

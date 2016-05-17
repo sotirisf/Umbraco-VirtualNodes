@@ -4,7 +4,12 @@ namespace DotSee.VirtualNodes
 {
     public static class Helpers
     {
-
+        /// <summary>
+        /// Checks a given node's name against a potential duplicate name. If the name is the same, followed by a space, a parenthesis and a number, then this is a duplicate name.
+        /// </summary>
+        /// <param name="potentialDuplicateName">The name to check against</param>
+        /// <param name="currNodeName">The given node's name</param>
+        /// <returns>True if the potential duplicate name is same with the current node's name followed by a parenthesis with a number</returns>
         public static bool MatchDuplicateName(string potentialDuplicateName, string currNodeName)
         {
             return (potentialDuplicateName.LastIndexOf('(') != -1
@@ -13,6 +18,13 @@ namespace DotSee.VirtualNodes
                     );
         }
 
+        /// <summary>
+        /// Gets the largest same-name node number being used
+        /// </summary>
+        /// <param name="potentialDuplicateName">The name to check for duplicates</param>
+        /// <param name="currNodeName">The current node's name</param>
+        /// <param name="maxNumber">The current maximum number</param>
+        /// <returns>The new maximum number, if applicable, or the same maximum number if nothing has changed</returns>
         public static int GetMaxNodeNameNumbering(string potentialDuplicateName, string currNodeName, int maxNumber)
         {
             //Anything goes wrong, we return the same maxNumber as provided
@@ -26,6 +38,11 @@ namespace DotSee.VirtualNodes
             return (maxNumber);
         }
 
+        /// <summary>
+        /// Checks if a node is a virtual node
+        /// </summary>
+        /// <param name="item">The node to check</param>
+        /// <returns>True if it is a virtual node</returns>
         public static bool IsVirtualNode(this IPublishedContent item) {
             foreach (string rule in VirtualNodesRuleManager.Instance.Rules)
             {
@@ -37,16 +54,12 @@ namespace DotSee.VirtualNodes
             return false;
         }
 
-        public static bool IsVirtualNode(this IContent item) {
-            foreach (string rule in VirtualNodesRuleManager.Instance.Rules) {
-                if (MatchContentTypeAlias(item.ContentType.Alias, rule)) {
-                    return true;
-                }
-            }
-            return false;
-           
-        }
-
+      /// <summary>
+      /// Checks rules from settings agains a given document type alias to see if it matches the rule
+      /// </summary>
+      /// <param name="nodeContentTypeAlias">The given document type alias</param>
+      /// <param name="contentTypeAliasFromSettings">The rule from settings</param>
+      /// <returns>True if it is a match</returns>
         private static bool MatchContentTypeAlias(string nodeContentTypeAlias, string contentTypeAliasFromSettings)
         {
 
