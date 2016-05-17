@@ -257,7 +257,6 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="VirtualNodesContentFinder.cs" />
     <Compile Include="VirtualNodesEventHandler.cs" />
-    <Compile Include="VirtualNodesRule.cs" />
     <Compile Include="VirtualNodesRuleManager.cs" />
     <Compile Include="VirtualNodesUrlProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Umbraco.Core.Models;
+﻿using Umbraco.Core.Models;
 
 namespace DotSee.VirtualNodes
 {
@@ -16,7 +11,6 @@ namespace DotSee.VirtualNodes
                         && potentialDuplicateName.LastIndexOf(')') == potentialDuplicateName.Length - 1
                         && potentialDuplicateName.Substring(0, potentialDuplicateName.LastIndexOf('(') - 1).Equals(currNodeName)
                     );
-
         }
 
         public static int GetMaxNodeNameNumbering(string potentialDuplicateName, string currNodeName, int maxNumber)

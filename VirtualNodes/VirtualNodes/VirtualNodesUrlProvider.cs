@@ -13,7 +13,7 @@ namespace DotSee.VirtualNodes
         //V8 will use the constructor below, doesn't seem to work for the time being. A warning is being thrown during compilation
         //that the default parameterless constructor is obsolete, but it looks like we still have to use that.
         ////https://our.umbraco.org/forum/developers/api-questions/72856-override-defaulturlprovider-not-working-when-new-constructor-is-used
-        //public OmitSegmentsUrlProvider(IRequestHandlerSection requestSettings) : base(UmbracoConfig.For.UmbracoSettings().RequestHandler)
+        //public VirtualNodesUrlProvider(IRequestHandlerSection requestSettings) : base(UmbracoConfig.For.UmbracoSettings().RequestHandler)
         //{
         //}
 
@@ -30,7 +30,6 @@ namespace DotSee.VirtualNodes
             if (content == null) { return null; }
 
             //If this is a virtual node itself, no need to handle it - should return normal URL
-            //if (content.DocumentTypeAlias.ToLower().StartsWith("virtualnode")) { return null; }
 
             bool hasVirtualNodeInPath = false;
             foreach (IPublishedContent item in content.Ancestors()) //.Union(content.Children())
@@ -42,25 +41,8 @@ namespace DotSee.VirtualNodes
                 }
             }
 
-            //if (!content.DocumentTypeAlias.ToLower().StartsWith("virtualnode"))
-            //{
-            //    return null;
-            //}
-
             return (hasVirtualNodeInPath ? ConstructUrl(umbracoContext, id, current, mode, content) : null);
 
-
-            //Find the first rule that matches the current document's doctype
-            //foreach (OmitSegmentsRule rule in OmitSegmentsRuleManager.Instance.Rules)
-            //{
-            //    if (rule.DocTypeAlias.Equals(content.DocumentTypeAlias))
-            //    {
-            //        return (ConstructUrl(umbracoContext, id, current, mode, content, rule));
-            //    }
-            //}
-
-            //Return null if no conditions are met so that the DefaultUrlProvider takes over and produces the default url.
-            //return null;
         }
 
         private string ConstructUrl(UmbracoContext umbracoContext, int id, Uri current, UrlProviderMode mode, IPublishedContent content)

@@ -7,7 +7,7 @@ using Umbraco.Web;
 namespace DotSee.VirtualNodes
 {
     /// <summary>
-    /// Loads rules for OmitSegmentsUrlProvider
+    /// Loads rules for VirtualNodesUrlProvider
     /// </summary>
     public sealed class VirtualNodesRuleManager
     {
@@ -69,7 +69,7 @@ namespace DotSee.VirtualNodes
         #region Public Methods
 
         /// <summary>
-        /// Registers a new rule for url segment replacement
+        /// Registers a new rule for a virtual node
         /// </summary>
         /// <param name="rule">An VirtualNodesRule object</param>
         public void RegisterRule(string rule)

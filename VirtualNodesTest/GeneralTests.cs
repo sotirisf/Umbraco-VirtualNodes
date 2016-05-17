@@ -133,5 +133,7 @@ namespace VirtualNodesTest
             result = Helpers.GetMaxNodeNameNumbering(potentialDuplicateName, nodeName, maxNumber);
             Assert.AreEqual(result, 4);
         }
+
+   
     }
 }
