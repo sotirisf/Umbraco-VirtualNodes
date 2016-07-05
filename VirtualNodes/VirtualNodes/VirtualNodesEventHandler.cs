@@ -42,7 +42,7 @@ namespace DotSee.VirtualNodes
             foreach (IContent node in args.SavedEntities)
             {
                 //If there is no parent, exit
-                if (!node.IsNewEntity() && node.Level==1) { continue; }
+                if ((!node.IsNewEntity() && node.Level == 1) || node.Level == 0) { continue; }
 
                 //Switch to IPublishedContent to go faster
                 IPublishedContent parent = new UmbracoHelper(UmbracoContext.Current).TypedContent(node.Parent().Id);

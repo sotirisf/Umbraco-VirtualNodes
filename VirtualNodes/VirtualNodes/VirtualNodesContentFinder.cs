@@ -22,7 +22,7 @@ public class VirtualNodesContentFinder : IContentFinder
         //If found in the cached dictionary, get the node id from there
         if (cachedVirtualNodeUrls != null && cachedVirtualNodeUrls.ContainsKey(path)) {
             int nodeId = cachedVirtualNodeUrls[path];
-            contentRequest.PublishedContent = new UmbracoHelper(UmbracoContext.Current).Content(nodeId);
+            contentRequest.PublishedContent = new UmbracoHelper(UmbracoContext.Current).TypedContent(nodeId);
             return true;
         }
 
