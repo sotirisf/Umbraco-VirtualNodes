@@ -66,6 +66,16 @@ namespace DotSee.VirtualNodes
             //https://our.umbraco.org/forum/developers/extending-umbraco/66741-iurlprovider-cannot-evaluate-expression-because-the-current-thread-is-in-a-stack-overflow-state
             string url = base.GetUrl(umbracoContext, id, current, mode);
 
+            //If we come from an absolute URL, strip the host part and keep it so that we can append
+            //it again when returing the URL. 
+            string hostPart = "";
+            if (url.StartsWith("http"))
+            {
+                Uri u = new Uri(url);
+                url = url.Replace(u.GetLeftPart(UriPartial.Authority), "");
+                hostPart = u.GetLeftPart(UriPartial.Authority);
+            }
+
             //Strip leading and trailing slashes 
             if ((url.EndsWith("/")))
             {
@@ -107,6 +117,8 @@ namespace DotSee.VirtualNodes
             {
                 finalUrl = "/" + finalUrl;
             }
+
+            finalUrl = string.Concat(hostPart, finalUrl);
 
             //Voila.
             return (finalUrl);
