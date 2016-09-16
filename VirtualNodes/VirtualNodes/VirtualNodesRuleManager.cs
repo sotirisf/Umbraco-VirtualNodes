@@ -32,7 +32,7 @@ namespace DotSee.VirtualNodes
         /// Gets the list of rules
         /// </summary>
         public List<string> Rules { get { return _rules; } }
-        
+
         #endregion
 
         #region Constructors
