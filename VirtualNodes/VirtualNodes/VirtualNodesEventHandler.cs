@@ -43,6 +43,8 @@ namespace DotSee.VirtualNodes
             foreach (IContent node in args.SavedEntities)
             {
 
+                if (!node.Published) { return; }
+
                 IPublishedContent parent;
 
                 try
