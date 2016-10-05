@@ -54,7 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VirtualNodes\VirtualNodes\VirtualNodes.csproj">
+    <ProjectReference Include="..\VirtualNodes\VirtualNodes.csproj">
       <Project>{5389a87f-70b2-4feb-9750-72d5427c6cf7}</Project>
       <Name>VirtualNodes</Name>
     </ProjectReference>
