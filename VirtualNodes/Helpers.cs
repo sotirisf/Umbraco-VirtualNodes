@@ -1,4 +1,5 @@
-﻿using Umbraco.Core.Models;
+﻿using System.Text.RegularExpressions;
+using Umbraco.Core.Models;
 
 namespace DotSee.VirtualNodes
 {
@@ -12,10 +13,8 @@ namespace DotSee.VirtualNodes
         /// <returns>True if the potential duplicate name is same with the current node's name followed by a parenthesis with a number</returns>
         public static bool MatchDuplicateName(string potentialDuplicateName, string currNodeName)
         {
-            return (potentialDuplicateName.LastIndexOf('(') != -1
-                        && potentialDuplicateName.LastIndexOf(')') == potentialDuplicateName.Length - 1
-                        && potentialDuplicateName.Substring(0, potentialDuplicateName.LastIndexOf('(') - 1).Equals(currNodeName)
-                    );
+            var rgName = new Regex(@"^(.+)( \(\d+\))$");
+            return rgName.IsMatch(potentialDuplicateName) && rgName.Replace(potentialDuplicateName, "$1").Equals(currNodeName);                                   
         }
 
         /// <summary>
@@ -26,15 +25,13 @@ namespace DotSee.VirtualNodes
         /// <param name="maxNumber">The current maximum number</param>
         /// <returns>The new maximum number, if applicable, or the same maximum number if nothing has changed</returns>
         public static int GetMaxNodeNameNumbering(string potentialDuplicateName, string currNodeName, int maxNumber)
-        {
-            //Anything goes wrong, we return the same maxNumber as provided
-            try
+        {            
+            var rgName = new Regex(@"^.+ \((\d+)\)$");
+            if (rgName.IsMatch(potentialDuplicateName))
             {
-                int newNumber = int.Parse(potentialDuplicateName.Substring(potentialDuplicateName.LastIndexOf('(') + 1, potentialDuplicateName.LastIndexOf(')') - 1 - potentialDuplicateName.LastIndexOf('(')));
+                int newNumber = int.Parse(rgName.Replace(potentialDuplicateName, "$1"));
                 maxNumber = (maxNumber < newNumber) ? newNumber : maxNumber;
             }
-            catch { }
-
             return (maxNumber);
         }
 
