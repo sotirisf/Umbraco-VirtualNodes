@@ -43,7 +43,11 @@ namespace DotSee.VirtualNodes
             foreach (IContent node in args.SavedEntities)
             {
 
+                //Node has not yen been published, so go away.
                 if (!node.Published) { return; }
+                
+                //Name of node hasn't changed, so don't do anything.
+                if (!node.IsPropertyDirty("Name")) { return; }
 
                 IPublishedContent parent;
 
