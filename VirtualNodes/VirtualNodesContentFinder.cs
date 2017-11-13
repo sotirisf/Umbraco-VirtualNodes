@@ -17,7 +17,11 @@ public class VirtualNodesContentFinder : IContentFinder
         var cachedVirtualNodeUrls = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<Dictionary<string, int>>("cachedVirtualNodes");
 
         //Get the request path
-        string path = contentRequest.Uri.AbsolutePath;
+        string path = contentRequest.Uri.AbsoluteUri;
+        if (path.IndexOf('?') != -1)
+        {
+            path = path.Substring(0, path.IndexOf('?'));
+        }
 
         //If found in the cached dictionary, get the node id from there
         if (cachedVirtualNodeUrls != null && cachedVirtualNodeUrls.ContainsKey(path)) {
@@ -29,11 +33,10 @@ public class VirtualNodesContentFinder : IContentFinder
         //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL
         var rootNodes = contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot();
         IPublishedContent item = null;
-            item = rootNodes
-                    .DescendantsOrSelf<IPublishedContent>()
-                    .Where(x => x.Url == (path + "/") || x.Url == path)
-                    .FirstOrDefault();
-
+        item = rootNodes
+                .DescendantsOrSelf<IPublishedContent>()
+                .Where(x => x.UrlWithDomain() == (path + "/") || x.UrlWithDomain() == path)
+                .FirstOrDefault();
         //If item is found, return it after adding it to the cache so we don't have to go through the same process again.
         if (cachedVirtualNodeUrls == null) { cachedVirtualNodeUrls = new Dictionary<string, int>(); }
 
