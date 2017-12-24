@@ -26,7 +26,7 @@ namespace DotSee.VirtualNodes
             ContentFinderResolver.Current.InsertTypeBefore<ContentFinderByNotFoundHandlers, VirtualNodesContentFinder>();
 
             base.ApplicationStarting(umbracoApplication, applicationContext);
-            ContentService.Saving += ContentServiceSaving;
+            ContentService.Saving+= ContentServiceSaving;
             ContentService.Published += ContentServicePublished;
         }
 
@@ -42,15 +42,16 @@ namespace DotSee.VirtualNodes
             ///Go through nodes being published          
             foreach (IContent node in args.SavedEntities)
             {
-
-                if (!node.Published) { return; }
+                
+                //Name of node hasn't changed, so don't do anything.
+                if (node.HasIdentity && !node.IsPropertyDirty("Name")) { continue; }
 
                 IPublishedContent parent;
 
                 try
                 {
                     //If there is no parent, exit
-                    if (node.ParentId == 0 || (!node.IsNewEntity() && node.Level == 1) || node.Level == 0) { continue; }
+                    if (node.ParentId == 0 || (!node.IsNewEntity() && node.Level == 1) || (node.HasIdentity && node.Level == 0)) { continue; }
 
                     //Switch to IPublishedContent to go faster
                     parent = new UmbracoHelper(UmbracoContext.Current).TypedContent(node.Parent().Id);

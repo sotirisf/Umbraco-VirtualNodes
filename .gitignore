@@ -264,3 +264,6 @@ ehthumbs.db
 
 # Folder config file
 Desktop.ini
+/wwwRoot
+/VirtualNodeDev.sln
+/Umbraco752
