@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Umbraco.Core.Models;
 
 namespace DotSee.VirtualNodes
@@ -42,6 +43,22 @@ namespace DotSee.VirtualNodes
         /// <returns>True if it is a virtual node</returns>
         public static bool IsVirtualNode(this IPublishedContent item) {
             foreach (string rule in VirtualNodesRuleManager.Instance.Rules)
+            {
+                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }        
+        /// <summary>
+        /// don't check this node and it's children when find node
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool IsNotPageNode(this IPublishedContent item)
+        {
+            foreach (string rule in VirtualNodesRuleManager.Instance.NotPageRules)
             {
                 if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
                 {

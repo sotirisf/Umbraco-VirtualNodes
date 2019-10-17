@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using DotSee.VirtualNodes;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
@@ -18,6 +20,7 @@ public class VirtualNodesContentFinder : IContentFinder
 
         //Get the request path
         string path = contentRequest.Uri.AbsolutePath;
+        path = path.Length != 1 ? path.TrimEnd('/') : path;//except homepage: url = /        
 
         //If found in the cached dictionary, get the node id from there
         if (cachedVirtualNodeUrls != null && cachedVirtualNodeUrls.ContainsKey(path)) {
@@ -26,13 +29,45 @@ public class VirtualNodesContentFinder : IContentFinder
             return true;
         }
 
-        //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL
-        var rootNodes = contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot();
+        //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL        
+
+        var rootNodes = contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot();        
         IPublishedContent item = null;
-            item = rootNodes
-                    .DescendantsOrSelf<IPublishedContent>()
-                    .Where(x => x.Url == (path + "/") || x.Url == path)
-                    .FirstOrDefault();
+        if (path == "/")
+        {
+            item = rootNodes.FirstOrDefault(e => e.Url == path);
+        }
+        else
+        {
+            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 1)
+            {
+                item = rootNodes.FirstOrDefault(e => e.Url == (path + "/") || e.Url == path);
+                if (item == null)
+                {
+                    var homePage = rootNodes.First(e => e.Url == "/");
+                    foreach(var child in homePage.Children)
+                    {
+                        item = FindDescendants(child, path);     
+                        if(item != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var child in rootNodes)
+                {
+                    item = FindDescendants(child, path);
+                    if (item != null)
+                    {
+                        break;
+                    }
+                }
+            }
+        }        
 
         //If item is found, return it after adding it to the cache so we don't have to go through the same process again.
         if (cachedVirtualNodeUrls == null) { cachedVirtualNodeUrls = new Dictionary<string, int>(); }
@@ -63,6 +98,45 @@ public class VirtualNodesContentFinder : IContentFinder
         //Abandon all hope ye who enter here. This means that we didn't find a node so we return false to let
         //the next ContentFinder (if any) take over.
         return false;
+    }
+    
+    /// <summary>
+    /// find this and it's children to match url
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    public IPublishedContent FindDescendants(IPublishedContent parent, string url)
+    {
+        if (parent.IsNotPageNode())
+            return null;
+
+        if (parent.Url == (url + "/") || parent.Url == url)
+        {
+            return parent;
+        }        
+        foreach (var child in parent.Children)
+        {
+            if (child.IsNotPageNode())
+                continue;
+            if (!Helpers.IsVirtualNode(child))
+            {
+                if (child.Url == (url + "/") || child.Url == url)
+                {
+                    return child;                    
+                }
+            }
+            else
+            {                
+                foreach (var childLv2 in child.Children)
+                {
+                    var result = FindDescendants(childLv2, url);
+                    if (result != null)
+                        return result;
+                }
+            }
+        }
+        return null;
     }
 }
 
