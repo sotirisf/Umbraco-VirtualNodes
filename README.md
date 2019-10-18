@@ -5,19 +5,24 @@ After you install the package, you will have to add one appSettings entry to you
 
 ```xml
 <add key="virtualnode" value="docTypeToMakeVirtual"/>
+<add key="virtualnode-notpage" value="docTypeThatDoNotHaveTemplate"/>
 ```
-Where docTypeToMakeVirtual is the document type alias you want to be treated as a "virtual" node.
+Where docTypeToMakeVirtual is the document type alias you want to be treated as a "virtual" node and docTypeThatDoNotHaveTemplate is the document type alias that do not have any template or it's not a public page.
+
+The docTypeThatDoNotHaveTemplate setting is important due to a perfomance issue [#11](https://github.com/sotirisf/Umbraco-VirtualNodes/issues/11), so please remember to set it.
 
 You can define more than one "rules" for docTypes by separating them with commas, as follows:
 
 ```xml
 <add key="virtualnode" value="docTypeToMakeVirtual,anotherDocType"/>
+<add key="virtualnode-notpage" value="docTypeThatDoNotHaveTemplate,anotherDocType"/>
 ```
 
 You can also use wildcards at the start and/or the end of the document type alias, like this:
 
 ```xml
 <add key="virtualnode" value="dog*,*cat,*mouse*"/>
+<add key="virtualnode-notpage" value="dog*,*cat,*mouse*"/>
 ```
 This means that all document type aliases ending with "dog", all document types starting with "cat" and all those containing "mouse" will be treated as virtual nodes. 
 
