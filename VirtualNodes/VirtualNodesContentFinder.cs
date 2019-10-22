@@ -125,6 +125,15 @@ public class VirtualNodesContentFinder : IContentFinder
                 {
                     return child;                    
                 }
+                else
+                {
+                    foreach (var childLv2 in child.Children)
+                    {
+                        var result = FindDescendants(childLv2, url);
+                        if (result != null)
+                            return result;
+                    }
+                }
             }
             else
             {                
