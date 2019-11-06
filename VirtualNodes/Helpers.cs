@@ -60,7 +60,7 @@ namespace DotSee.VirtualNodes
         {
             foreach (string rule in VirtualNodesRuleManager.Instance.NotPageRules)
             {
-                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
+                if (SimpleMatchContentTypeAlias(item.DocumentTypeAlias, rule))
                 {
                     return true;
                 }
@@ -90,8 +90,12 @@ namespace DotSee.VirtualNodes
             }
             else
             {
-                return (nodeContentTypeAlias.ToLower().Equals(contentTypeAliasFromSettings.ToLower()));
+                return SimpleMatchContentTypeAlias(nodeContentTypeAlias, contentTypeAliasFromSettings);
             }
+        }
+        private static bool SimpleMatchContentTypeAlias(string nodeContentTypeAlias, string contentTypeAliasFromSettings)
+        {
+            return (nodeContentTypeAlias.ToLower().Equals(contentTypeAliasFromSettings.ToLower()));
         }
     }
 }

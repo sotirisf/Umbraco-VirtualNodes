@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -15,12 +16,17 @@ public class VirtualNodesContentFinder : IContentFinder
 {
     public bool TryFindContent(PublishedContentRequest contentRequest)
     {
+
         //Get a cached dictionary of urls and node ids
         var cachedVirtualNodeUrls = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<Dictionary<string, int>>("cachedVirtualNodes");
 
         //Get the request path
-        string path = contentRequest.Uri.AbsolutePath;
-        path = path.Length != 1 ? path.TrimEnd('/') : path;//except homepage: url = /        
+
+        string path;
+        if (contentRequest.HasDomain)
+            path = contentRequest.Domain.RootNodeId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
+        else
+            path = contentRequest.Uri.GetAbsolutePathDecoded();        
 
         //If found in the cached dictionary, get the node id from there
         if (cachedVirtualNodeUrls != null && cachedVirtualNodeUrls.ContainsKey(path)) {
@@ -29,45 +35,18 @@ public class VirtualNodesContentFinder : IContentFinder
             return true;
         }
 
-        //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL        
+        //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL                        
 
-        var rootNodes = contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot();        
+        var virtualNodes = GetAllVirtualNodes(contentRequest);
         IPublishedContent item = null;
-        if (path == "/")
+        foreach (var virtualNode in virtualNodes)
         {
-            item = rootNodes.FirstOrDefault(e => e.Url == path);
-        }
-        else
-        {
-            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            if (segments.Length == 1)
+            item = FindDescendants(virtualNode, path);
+            if (item != null)
             {
-                item = rootNodes.FirstOrDefault(e => e.Url == (path + "/") || e.Url == path);
-                if (item == null)
-                {
-                    var homePage = rootNodes.First(e => e.Url == "/");
-                    foreach(var child in homePage.Children)
-                    {
-                        item = FindDescendants(child, path);     
-                        if(item != null)
-                        {
-                            break;
-                        }
-                    }
-                }
+                break;
             }
-            else
-            {
-                foreach (var child in rootNodes)
-                {
-                    item = FindDescendants(child, path);
-                    if (item != null)
-                    {
-                        break;
-                    }
-                }
-            }
-        }        
+        }                   
 
         //If item is found, return it after adding it to the cache so we don't have to go through the same process again.
         if (cachedVirtualNodeUrls == null) { cachedVirtualNodeUrls = new Dictionary<string, int>(); }
@@ -114,29 +93,20 @@ public class VirtualNodesContentFinder : IContentFinder
         if (parent.Url == (url + "/") || parent.Url == url)
         {
             return parent;
-        }        
+        }
         foreach (var child in parent.Children)
         {
             if (child.IsNotPageNode())
                 continue;
-            if (!Helpers.IsVirtualNode(child))
+            /*we suppose that don't have virtualFolders inside (is children) of an other virtualFolder*/
+            //if (!Helpers.IsVirtualNode(child))
+            //{
+            if (child.Url == (url + "/") || child.Url == url)
             {
-                if (child.Url == (url + "/") || child.Url == url)
-                {
-                    return child;                    
-                }
-                else
-                {
-                    foreach (var childLv2 in child.Children)
-                    {
-                        var result = FindDescendants(childLv2, url);
-                        if (result != null)
-                            return result;
-                    }
-                }
+                return child;
             }
             else
-            {                
+            {
                 foreach (var childLv2 in child.Children)
                 {
                     var result = FindDescendants(childLv2, url);
@@ -144,8 +114,55 @@ public class VirtualNodesContentFinder : IContentFinder
                         return result;
                 }
             }
+            //}
+            /*don't have to look deeper because this included in the loop through all virtual nodes above*/
+            //else
+            //{                      
+            //foreach (var childLv2 in child.Children)
+            //{
+            //    var result = FindDescendants(childLv2, url);
+            //    if (result != null)
+            //        return result;
+            //}
+            //}
         }
         return null;
+    }
+    
+    /// <summary>
+    /// get all VirtualFolder nodes, only check at level 2, for Interlink only, to fit the peformance
+    /// </summary>
+    /// <param name="contentRequest"></param>
+    /// <returns></returns>
+    public List<IPublishedContent> GetAllVirtualNodes(PublishedContentRequest contentRequest)
+    {
+        List<IPublishedContent> allVirtualNodes = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<List<IPublishedContent>>("AllVirtualNodes");
+        if(allVirtualNodes == null)
+        {
+            allVirtualNodes = new List<IPublishedContent>();
+            foreach (var root in contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot())
+            {
+                if (Helpers.IsVirtualNode(root))
+                {
+                    allVirtualNodes.Add(root);
+                }
+                foreach(var item in root.Children) {
+                    if (Helpers.IsVirtualNode(item))
+                    {
+                        allVirtualNodes.Add(item);
+                    }
+                }
+            }            
+
+            //Update cache
+            ApplicationContext.Current.ApplicationCache.RuntimeCache.InsertCacheItem<List<IPublishedContent>>(
+                    "AllVirtualNodes",
+                    () => allVirtualNodes,
+                    null,
+                    false,
+                    System.Web.Caching.CacheItemPriority.High);
+        }
+        return allVirtualNodes;
     }
 }
 
