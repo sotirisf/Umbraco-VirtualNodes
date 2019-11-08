@@ -24,7 +24,7 @@ public class VirtualNodesContentFinder : IContentFinder
 
         string path;
         if (contentRequest.HasDomain)
-            path = contentRequest.Domain.RootNodeId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
+            path = contentRequest.UmbracoDomain.DomainName + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
         else
             path = contentRequest.Uri.GetAbsolutePathDecoded();        
 
@@ -41,7 +41,7 @@ public class VirtualNodesContentFinder : IContentFinder
         IPublishedContent item = null;
         foreach (var virtualNode in virtualNodes)
         {
-            item = FindDescendants(virtualNode, path);
+            item = FindDescendants(virtualNode, path, contentRequest.HasDomain);
             if (item != null)
             {
                 break;
@@ -85,12 +85,12 @@ public class VirtualNodesContentFinder : IContentFinder
     /// <param name="parent"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public IPublishedContent FindDescendants(IPublishedContent parent, string url)
+    public IPublishedContent FindDescendants(IPublishedContent parent, string url, bool hasDomain)
     {
         if (parent.IsNotPageNode())
             return null;
 
-        if (parent.Url == (url + "/") || parent.Url == url)
+        if (IsMatch(url, parent, hasDomain))    
         {
             return parent;
         }
@@ -101,7 +101,7 @@ public class VirtualNodesContentFinder : IContentFinder
             /*we suppose that don't have virtualFolders inside (is children) of an other virtualFolder*/
             //if (!Helpers.IsVirtualNode(child))
             //{
-            if (child.Url == (url + "/") || child.Url == url)
+            if (IsMatch(url, child, hasDomain))
             {
                 return child;
             }
@@ -109,7 +109,7 @@ public class VirtualNodesContentFinder : IContentFinder
             {
                 foreach (var childLv2 in child.Children)
                 {
-                    var result = FindDescendants(childLv2, url);
+                    var result = FindDescendants(childLv2, url, hasDomain);
                     if (result != null)
                         return result;
                 }
@@ -163,6 +163,21 @@ public class VirtualNodesContentFinder : IContentFinder
                     System.Web.Caching.CacheItemPriority.High);
         }
         return allVirtualNodes;
+    }
+
+    public bool IsMatch(string requestPath, IPublishedContent node, bool hasDomain)
+    {
+        if (hasDomain)
+        {
+            var nodeUrl = node.UrlWithDomain();
+            var httpIndex = nodeUrl.IndexOf("://");
+            if (httpIndex != -1)
+            {
+                nodeUrl = nodeUrl.Substring(httpIndex + 3);
+                return nodeUrl == (requestPath + "/") || nodeUrl == requestPath;
+            }
+        }
+        return node.Url == (requestPath + "/") || node.Url == requestPath;
     }
 }
 
