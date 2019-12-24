@@ -136,33 +136,32 @@ public class VirtualNodesContentFinder : IContentFinder
     /// <returns></returns>
     public List<IPublishedContent> GetAllVirtualNodes(PublishedContentRequest contentRequest)
     {
-        List<IPublishedContent> allVirtualNodes = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<List<IPublishedContent>>("AllVirtualNodes");
+        List<int> allVirtualNodes = ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem<List<int>>("AllVirtualNodes");
         if(allVirtualNodes == null)
         {
-            allVirtualNodes = new List<IPublishedContent>();
+            allVirtualNodes = new List<int>();
             foreach (var root in contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot())
             {
                 if (Helpers.IsVirtualNode(root))
                 {
-                    allVirtualNodes.Add(root);
+                    allVirtualNodes.Add(root.Id);
                 }
                 foreach(var item in root.Children) {
                     if (Helpers.IsVirtualNode(item))
                     {
-                        allVirtualNodes.Add(item);
+                        allVirtualNodes.Add(item.Id);
                     }
                 }
             }            
-
             //Update cache
-            ApplicationContext.Current.ApplicationCache.RuntimeCache.InsertCacheItem<List<IPublishedContent>>(
+            ApplicationContext.Current.ApplicationCache.RuntimeCache.InsertCacheItem<List<int>>(
                     "AllVirtualNodes",
                     () => allVirtualNodes,
                     null,
                     false,
                     System.Web.Caching.CacheItemPriority.High);
         }
-        return allVirtualNodes;
+        return new UmbracoHelper(UmbracoContext.Current).TypedContent(allVirtualNodes).ToList();
     }
 
     public bool IsMatch(string requestPath, IPublishedContent node, bool hasDomain)
