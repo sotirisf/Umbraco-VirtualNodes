@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Umbraco.Core.Models;
 
 namespace DotSee.VirtualNodes
@@ -49,6 +50,22 @@ namespace DotSee.VirtualNodes
                 }
             }
             return false;
+        }        
+        /// <summary>
+        /// don't check this node and it's children when find node
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool IsNotPageNode(this IPublishedContent item)
+        {
+            foreach (string rule in VirtualNodesRuleManager.Instance.NotPageRules)
+            {
+                if (SimpleMatchContentTypeAlias(item.DocumentTypeAlias, rule))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
       /// <summary>
@@ -73,8 +90,12 @@ namespace DotSee.VirtualNodes
             }
             else
             {
-                return (nodeContentTypeAlias.ToLower().Equals(contentTypeAliasFromSettings.ToLower()));
+                return SimpleMatchContentTypeAlias(nodeContentTypeAlias, contentTypeAliasFromSettings);
             }
+        }
+        private static bool SimpleMatchContentTypeAlias(string nodeContentTypeAlias, string contentTypeAliasFromSettings)
+        {
+            return (nodeContentTypeAlias.ToLower().Equals(contentTypeAliasFromSettings.ToLower()));
         }
     }
 }

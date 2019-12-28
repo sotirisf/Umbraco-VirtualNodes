@@ -24,14 +24,21 @@ namespace DotSee.VirtualNodes
         /// </summary>
         private List<string> _rules;
 
+        private List<string> _notPageRules;
+
         #endregion
 
         #region Public Members
-        
+
         /// <summary>
         /// Gets the list of rules
         /// </summary>
         public List<string> Rules { get { return _rules; } }
+
+        /// <summary>
+        /// Gets the list of rules
+        /// </summary>
+        public List<string> NotPageRules { get { return _notPageRules; } }
 
         #endregion
 
@@ -49,19 +56,26 @@ namespace DotSee.VirtualNodes
         {
             ///This is the prefix web.config keys should have to be included 
             string key = "virtualnode";
+            string notPageKey = "virtualnode-notpage";
 
             _rules = new List<string>();
+            _notPageRules = new List<string>();
 
             //Get all entries with keys starting with specified prefix
-            string rules =
-                ConfigurationManager.AppSettings.Get(key);
+            string rules = ConfigurationManager.AppSettings.Get(key);
+            string notPageRules = ConfigurationManager.AppSettings.Get(notPageKey);
 
-           if (string.IsNullOrEmpty(rules)) { return; }
+            if (string.IsNullOrEmpty(rules) && string.IsNullOrEmpty(notPageRules)) { return; }
             
            //Register a rule for each item
             foreach (string rule in rules.Split(','))
             {
                 _rules.Add(rule.Trim());
+            }
+
+            foreach (string rule in notPageRules.Split(','))
+            {
+                _notPageRules.Add(rule.Trim());
             }
         }
 
