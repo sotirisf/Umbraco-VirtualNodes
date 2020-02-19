@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Models;
-using Umbraco.Web;
 using Umbraco.Web.Routing;
+using Umbraco.Core.Logging;
+using Umbraco.Web;
+using Umbraco.Core.Models.PublishedContent;
 
 namespace DotSee.VirtualNodes
 {
@@ -13,21 +17,26 @@ namespace DotSee.VirtualNodes
         //V8 will use the constructor below, doesn't seem to work for the time being. A warning is being thrown during compilation
         //that the default parameterless constructor is obsolete, but it looks like we still have to use that.
         ////https://our.umbraco.org/forum/developers/api-questions/72856-override-defaulturlprovider-not-working-when-new-constructor-is-used
-        //public VirtualNodesUrlProvider(IRequestHandlerSection requestSettings) : base(UmbracoConfig.For.UmbracoSettings().RequestHandler)
-        //{
-        //}
-
-        public override IEnumerable<string> GetOtherUrls(UmbracoContext umbracoContext, int id, Uri current)
+        public VirtualNodesUrlProvider(IRequestHandlerSection requestSettings, ILogger logger, IGlobalSettings globalSettings, ISiteDomainHelper siteDomainHelper) : base(requestSettings, logger, globalSettings, siteDomainHelper) 
         {
-            return (base.GetOtherUrls(umbracoContext, id, current));
         }
 
-        public override string GetUrl(UmbracoContext umbracoContext, int id, Uri current, UrlProviderMode mode)
+        public override IEnumerable<UrlInfo> GetOtherUrls(UmbracoContext umbracoContext, int id, Uri current)
         {
-            var content = umbracoContext.ContentCache.GetById(id);
+            
+            return base.GetOtherUrls(umbracoContext, id, current);
+        }
+
+        public override UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlMode mode, string culture, Uri current)
+        {
+            //var content = umbracoContext.ContentCache.GetById(id);
 
             //Just in case
-            if (content == null) { return null; }
+            if (content == null) 
+            {
+                //otherwise return the base GetUrl result:
+                return base.GetUrl(umbracoContext, content, mode, culture, current);
+            }
 
             //If this is a virtual node itself, no need to handle it - should return normal URL
 
@@ -41,11 +50,11 @@ namespace DotSee.VirtualNodes
                 }
             }
 
-            return (hasVirtualNodeInPath ? ConstructUrl(umbracoContext, id, current, mode, content) : null);
+            return (hasVirtualNodeInPath ? ConstructUrl(umbracoContext, content.Id, current, mode, content, culture) : null);
 
         }
 
-        private string ConstructUrl(UmbracoContext umbracoContext, int id, Uri current, UrlProviderMode mode, IPublishedContent content)
+        private UrlInfo ConstructUrl(UmbracoContext umbracoContext, int id, Uri current, UrlMode mode, IPublishedContent content, string culture)
         {
 
             string path = content.Path;
@@ -64,15 +73,15 @@ namespace DotSee.VirtualNodes
             //DO NOT USE THIS - RECURSES: string url = content.Url;
             //https://our.umbraco.org/forum/developers/extending-umbraco/73533-custom-url-provider-stackoverflowerror
             //https://our.umbraco.org/forum/developers/extending-umbraco/66741-iurlprovider-cannot-evaluate-expression-because-the-current-thread-is-in-a-stack-overflow-state
-            string url = base.GetUrl(umbracoContext, id, current, mode);
+            UrlInfo url = base.GetUrl(umbracoContext, content, mode, culture, current);
 
             //If we come from an absolute URL, strip the host part and keep it so that we can append
             //it again when returing the URL. 
             string hostPart = "";
-            if (url.StartsWith("http"))
+            if (url.Text.StartsWith("http"))
             {
-                Uri u = new Uri(url);
-                url = url.Replace(u.GetLeftPart(UriPartial.Authority), "");
+                //Uri u = new Uri(url);
+                url = new UrlInfo(url.Text.Replace(u.GetLeftPart(UriPartial.Authority), ""), true, );
                 hostPart = u.GetLeftPart(UriPartial.Authority);
             }
 

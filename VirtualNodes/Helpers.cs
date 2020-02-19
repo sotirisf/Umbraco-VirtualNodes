@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 
 namespace DotSee.VirtualNodes
 {
