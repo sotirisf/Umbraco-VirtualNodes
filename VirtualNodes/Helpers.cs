@@ -44,7 +44,7 @@ namespace DotSee.VirtualNodes
         public static bool IsVirtualNode(this IPublishedContent item) {
             foreach (string rule in VirtualNodesRuleManager.Instance.Rules)
             {
-                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
+                if (MatchContentTypeAlias(item.ContentType.Alias, rule))
                 {
                     return true;
                 }

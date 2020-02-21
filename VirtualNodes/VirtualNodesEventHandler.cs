@@ -4,9 +4,12 @@ using Umbraco.Core.Composing;
 using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Entities;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Services;
 using Umbraco.Core.Services.Implement;
+using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace DotSee.VirtualNodes
 {
@@ -17,7 +20,7 @@ namespace DotSee.VirtualNodes
     {
         public void Compose(Composition composition)
         {
-            composition.Components().Append<VirtualnNodesBootstrapper>();
+            composition.Components().Append<VirtualNodesBootstrapper>();
         }
     }
 
@@ -26,20 +29,20 @@ namespace DotSee.VirtualNodes
         private readonly ILogger _logger;
         private readonly IContentService _cs;
         private readonly IContentTypeService _cts;
+        private readonly UmbracoContext _context;
+        //private readonly UmbracoHelper _u;
 
-        public VirtualNodesBootstrapper(ILogger logger, IContentService cs, IContentTypeService cts)
+        public VirtualNodesBootstrapper(ILogger logger, IContentService cs, IContentTypeService cts, UmbracoContext umbracoContext)
         {
             _logger = logger;
             _cs = cs;
             _cts = cts;
+            _context = umbracoContext;
+            //_u = u;
         }
 
         public void Initialize()
         {
-            //Register provider
-            UrlProviderResolver.Current.InsertTypeBefore<DefaultUrlProvider, VirtualNodesUrlProvider>();
-            ContentFinderResolver.Current.InsertTypeBefore<ContentFinderByNotFoundHandlers, VirtualNodesContentFinder>();
-
             ContentService.Saving += ContentServiceSaving;
             ContentService.Published += ContentServicePublished;
         }
@@ -47,7 +50,7 @@ namespace DotSee.VirtualNodes
         private void ContentServicePublished(IContentService sender, PublishEventArgs<IContent> args)
         {
             //Clear the content finder cache.
-            ApplicationContext.Current.ApplicationCache.RuntimeCache.ClearCacheItem("cachedVirtualNodes");
+            Current.AppCaches.RuntimeCache.ClearByKey("cachedVirtualNodes");
         }
 
         private void ContentServiceSaving(IContentService sender, ContentSavingEventArgs e)
@@ -62,11 +65,15 @@ namespace DotSee.VirtualNodes
 
                 try
                 {
+                    var dirty = (IRememberBeingDirty)node;
+                    var isNew = dirty.WasPropertyDirty("Id");
+
                     //If there is no parent, exit
-                    if (node.ParentId == 0 || (!node.IsNewEntity() && node.Level == 1) || (node.HasIdentity && node.Level == 0)) { continue; }
+                    if (node.ParentId == 0 || (!isNew && node.Level == 1) || (node.HasIdentity && node.Level == 0)) { continue; }
 
                     //Switch to IPublishedContent to go faster
-                    parent = new UmbracoHelper(UmbracoContext.Current).TypedContent(node.Parent().Id);
+                    
+                    parent = _context.Content.GetById(node.ParentId);
 
                     //If parent is home (redundant) and parent is not a virtual node, exit current iteration
                     if (parent == null || parent.Level < 2 || !parent.IsVirtualNode()) { continue; }
