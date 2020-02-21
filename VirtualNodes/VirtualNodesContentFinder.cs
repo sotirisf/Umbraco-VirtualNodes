@@ -130,7 +130,7 @@ public class VirtualNodesContentFinder : IContentFinder
     }
     
     /// <summary>
-    /// get all VirtualFolder nodes, only check at level 2, for Interlink only, to fit the peformance
+    /// get all VirtualFolder nodes, only check at level #3
     /// </summary>
     /// <param name="contentRequest"></param>
     /// <returns></returns>
@@ -142,14 +142,21 @@ public class VirtualNodesContentFinder : IContentFinder
             allVirtualNodes = new List<int>();
             foreach (var root in contentRequest.RoutingContext.UmbracoContext.ContentCache.GetAtRoot())
             {
-                if (Helpers.IsVirtualNode(root))
+                if (Helpers.IsVirtualNode(root) && !Helpers.IsNotPageNode(root))
                 {
                     allVirtualNodes.Add(root.Id);
                 }
                 foreach(var item in root.Children) {
-                    if (Helpers.IsVirtualNode(item))
+                    if (Helpers.IsVirtualNode(item) && !Helpers.IsNotPageNode(item))
                     {
                         allVirtualNodes.Add(item.Id);
+                    }
+                    foreach (var item2 in item.Children)
+                    {
+                        if (Helpers.IsVirtualNode(item2) && !Helpers.IsNotPageNode(item2))
+                        {
+                            allVirtualNodes.Add(item2.Id);
+                        }
                     }
                 }
             }            
