@@ -49,8 +49,7 @@ namespace DotSee.VirtualNodes
 
         public override UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlMode mode, string culture, Uri current)
         {
-            //var content = umbracoContext.ContentCache.GetById(id);
-
+          
             //Just in case
             if (content == null)
             {
@@ -103,8 +102,12 @@ namespace DotSee.VirtualNodes
                 Uri u = new Uri(url.Text);
 
                 newUrl = url.Text.Replace(u.GetLeftPart(UriPartial.Authority), "");
-                
+
                 hostPart = u.GetLeftPart(UriPartial.Authority);
+            }
+            else
+            {
+                newUrl = url.Text;
             }
 
             //Strip leading and trailing slashes
