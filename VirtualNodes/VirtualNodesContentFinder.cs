@@ -42,7 +42,7 @@ public class VirtualNodesContentFinder : IContentFinder
         }
 
         //Get the culture for ML content
-        string culture = (contentRequest.Culture!=null) ? contentRequest.Culture.Name : null;
+        string culture = contentRequest.Culture?.Name;
 
         //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL
         var rootNodes = contentRequest.UmbracoContext.Content.GetAtRoot(culture:contentRequest.Culture.Name);
