@@ -143,15 +143,11 @@ namespace DotSee.VirtualNodes
             string finalUrl = string.Join("/", urlParts.Reverse().Where(x => x != "").ToArray());
 
             //Just in case - check if there are trailing and leading slashes and add them if not.
-            if (!(finalUrl.EndsWith("/")))
-            {
-                finalUrl += "/";
-            }
-            if (!(finalUrl.StartsWith("/")))
-            {
-                finalUrl = "/" + finalUrl;
-            }
-
+            //Also check for the "AddTrailingSlash" setting and append trailing slash or not accordingly.
+            finalUrl = _requestSettings.AddTrailingSlash 
+                ? finalUrl.EnsureEndsWith("/").EnsureStartsWith("/")
+                : finalUrl.EnsureStartsWith("/");
+            
             finalUrl = string.Concat(hostPart, finalUrl);
 
             //Voila.

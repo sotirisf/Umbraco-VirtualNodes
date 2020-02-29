@@ -12,7 +12,7 @@ public class ContentFinderStartUp : IUserComposer
 {
     public void Compose(Composition composition)
     {
-        composition.ContentFinders().InsertBefore<ContentFinderByUrl ,VirtualNodesContentFinder>();
+        composition.ContentFinders().Insert<VirtualNodesContentFinder>();
     }
 }
 
@@ -27,7 +27,11 @@ public class VirtualNodesContentFinder : IContentFinder
         var cachedVirtualNodeUrls = Current.AppCaches.RuntimeCache.GetCacheItem<Dictionary<string, int>>("cachedVirtualNodes");
 
         //Get the request path
-        string path = contentRequest.Uri.AbsolutePath;
+        string path = contentRequest.Uri.AbsoluteUri;
+        if (path.IndexOf('?') != -1)
+        {
+            path = path.Substring(0, path.IndexOf('?'));
+        }
 
         //If found in the cached dictionary, get the node id from there
         if (cachedVirtualNodeUrls != null && cachedVirtualNodeUrls.ContainsKey(path))
@@ -37,12 +41,15 @@ public class VirtualNodesContentFinder : IContentFinder
             return true;
         }
 
+        //Get the culture for ML content
+        string culture = (contentRequest.Culture!=null) ? contentRequest.Culture.Name : null;
+
         //If not found on the cached dictionary, traverse nodes and find the node that corresponds to the URL
-        var rootNodes = contentRequest.UmbracoContext.Content.GetAtRoot();
+        var rootNodes = contentRequest.UmbracoContext.Content.GetAtRoot(culture:contentRequest.Culture.Name);
         IPublishedContent item = null;
         item = rootNodes
-                .DescendantsOrSelf<IPublishedContent>()
-                .Where(x => x.Url == (path + "/") || x.Url == path)
+                .DescendantsOrSelf<IPublishedContent>(culture:culture)
+                .Where(x => x.Url(culture:culture, mode:UrlMode.Absolute) == (path + "/") || x.Url(culture:culture, mode:UrlMode.Absolute) == path)
                 .FirstOrDefault();
 
         //If item is found, return it after adding it to the cache so we don't have to go through the same process again.
