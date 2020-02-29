@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -109,7 +110,7 @@ namespace DotSee.VirtualNodes
             string finalUrl = string.Join("/", urlParts.Reverse().Where(x => x != "").ToArray());
 
             //Just in case - check if there are trailing and leading slashes and add them if not.
-            if (!(finalUrl.EndsWith("/")))
+            if (!finalUrl.EndsWith("/") && UmbracoConfig.For.UmbracoSettings().RequestHandler.AddTrailingSlash)
             {
                 finalUrl += "/";
             }
