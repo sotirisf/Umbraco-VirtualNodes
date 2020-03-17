@@ -130,7 +130,7 @@ public class VirtualNodesContentFinder : IContentFinder
     }
     
     /// <summary>
-    /// get all VirtualFolder nodes, only check at level #3
+    /// get all VirtualFolder nodes, only check at level #4
     /// </summary>
     /// <param name="contentRequest"></param>
     /// <returns></returns>
@@ -156,6 +156,13 @@ public class VirtualNodesContentFinder : IContentFinder
                         if (Helpers.IsVirtualNode(item2) && !Helpers.IsNotPageNode(item2))
                         {
                             allVirtualNodes.Add(item2.Id);
+                        }
+                        foreach (var item3 in item2.Children)
+                        {
+                            if (Helpers.IsVirtualNode(item3) && !Helpers.IsNotPageNode(item3))
+                            {
+                                allVirtualNodes.Add(item3.Id);
+                            }
                         }
                     }
                 }
