@@ -1,0 +1,21 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Sotiris Filippidis</authors>
+    <owners>Sotiris Filippidis</owners>
+    <projectUrl>https://github.com/sotirisf/Umbraco-VirtualNodes.git</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Lets you specify one or more document types that will be excluded from Umbraco-generated URLs, thus making them "invisible". Those can be used as grouping nodes and they will not appear as part of the URL.</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>umbraco nodes backend contentfinder</tags>
+    <references>
+      <reference file="DotSee.VirtualNodes.dll" />
+    </references>
+    <dependencies>
+      <dependency id="UmbracoCms.Core" version="7.4.0" />
+    </dependencies>
+  </metadata>
+</package>

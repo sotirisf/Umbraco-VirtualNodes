@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 
 namespace DotSee.VirtualNodes
 {
@@ -43,7 +44,7 @@ namespace DotSee.VirtualNodes
         public static bool IsVirtualNode(this IPublishedContent item) {
             foreach (string rule in VirtualNodesRuleManager.Instance.Rules)
             {
-                if (MatchContentTypeAlias(item.DocumentTypeAlias, rule))
+                if (MatchContentTypeAlias(item.ContentType.Alias, rule))
                 {
                     return true;
                 }
