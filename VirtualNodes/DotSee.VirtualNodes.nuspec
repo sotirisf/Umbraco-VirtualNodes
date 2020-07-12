@@ -1,13 +1,17 @@
 ﻿<?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
-    <id>Umbraco.VirtualNodes</id>
+    <id>DotSee.VirtualNodes</id>
+    <title>Virtual Nodes for Umbraco</title>
     <version>1.1.0</version>
     <authors>Sotiris Filippidis</authors>
     <owners>DotSee Web Services</owners>
+    <license type="expression">MIT</license>
     <projectUrl>https://our.umbraco.com/packages/website-utilities/virtualnodes/</projectUrl>
+    <repository type="git" url="https://github.com/sotirisf/Umbraco-VirtualNodes/"></repository>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>This package lets you specify one or more document types that will be excluded from Umbraco-generated URLs, thus making them "invisible".</description>
+    <summary>This package lets you specify one or more document types that will be excluded from Umbraco-generated URLs, thus making them "invisible".</summary>
     <copyright>Copyright 2020 DotSee Web Services</copyright>
     <tags>umbraco, umbraco-cms backoffice contentfinder backend</tags>
     <dependencies>
